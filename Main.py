@@ -17,8 +17,14 @@ class Population:
             individ.draw_figure()
             self.individuals.append(individ)
 
+    def compute_fitness(self, fitness_func):
+        for individ in self.individuals:
+            individ.fitness = fitness_func(individ, IMG)
+
 
 class Individual:
+    fitness = -1
+
     def __init__(self):
         color = "black" if bool(getrandbits(1)) else "white"
         self.chromosome = Image.new('RGB', IMG_SIZE, color = color)
@@ -44,9 +50,16 @@ class Individual:
         draw.rectangle(coords, fill=color)
 
 
+def fitness_function(individ, img):
+    fitness = 0
+
+    return fitness
+
+
 def start():
     population = Population()
     population.create()
 
+    population.compute_fitness(fitness_function)
 
 start()
