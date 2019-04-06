@@ -14,7 +14,7 @@ class Population:
     def create(self):
         for i in range(POP_SIZE):
             individ = Individual()
-            individ.draw_polygon()
+            individ.draw_figure()
             self.individuals.append(individ)
 
 
@@ -23,11 +23,15 @@ class Individual:
         color = "black" if bool(getrandbits(1)) else "white"
         self.chromosome = Image.new('RGB', IMG_SIZE, color = color)
 
-    def draw_polygon(self):
+    def draw_figure(self):
         def pick_coords():
             coords = []
-            for i in range(4):
-                coords.append((randint(0, self.chromosome.size[0]), randint(0, self.chromosome.size[1])))
+
+            coords.append(randint(0, self.chromosome.size[0]))
+            coords.append(randint(0, self.chromosome.size[1]))
+            coords.append(randint(0, self.chromosome.size[0]))
+            coords.append(randint(0, self.chromosome.size[1]))
+
             return coords
 
         def pick_color():
@@ -37,7 +41,7 @@ class Individual:
         coords = pick_coords()
         color = pick_color()
 
-        draw.polygon(coords, fill=color)
+        draw.rectangle(coords, fill=color)
 
 
 def start():
