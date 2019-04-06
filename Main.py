@@ -1,9 +1,10 @@
 from PIL import Image, ImageDraw
 from random import randint, getrandbits
+from numpy import subtract
 
 
 IMG = Image.open("img/smoke-dog.jpg")
-POP_SIZE = 5
+POP_SIZE = 1
 IMG_SIZE = IMG.size
 NUM_ITERATIONS = 50
 
@@ -19,7 +20,7 @@ class Population:
 
     def compute_fitness(self, fitness_func):
         for individ in self.individuals:
-            individ.fitness = fitness_func(individ, IMG)
+            individ.fitness = fitness_func(individ.chromosome, IMG)
 
 
 class Individual:
@@ -50,8 +51,15 @@ class Individual:
         draw.rectangle(coords, fill=color)
 
 
-def fitness_function(individ, img):
+def fitness_function(individ_chr, img):
     fitness = 0
+    ind_grid = individ_chr.getdata()
+    img_grid = img.getdata()
+
+    for x in range(IMG_SIZE[0] * IMG_SIZE[1]):
+        fitness += sum(abs(subtract(img_grid[x], ind_grid[x])))
+    
+    print(fitness)
 
     return fitness
 
