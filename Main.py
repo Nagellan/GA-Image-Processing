@@ -20,7 +20,7 @@ class Population:
 
     def compute_fitness(self, fitness_func):
         for individ in self.individuals:
-            individ.fitness = fitness_func(individ.chromosome, IMG)
+            individ.fitness = fitness_func(individ, IMG)
 
 
 class Individual:
@@ -48,15 +48,20 @@ class Individual:
         coords = pick_coords()
         color = pick_color()
 
+        self.genes = ("rectangle", coords, color)
+
         draw.rectangle(coords, fill=color)
 
 
-def fitness_function(individ_chr, img):
+def fitness_function(individ, img):
     fitness = 0
-    ind_grid = individ_chr.getdata()
+    ind_grid = individ.chromosome.getdata()
     img_grid = img.getdata()
+    fig_coords = individ.genes[1]
+    start = min(fig_coords[1], fig_coords[3])*IMG_SIZE[0]
+    finish = max(fig_coords[1], fig_coords[3])*IMG_SIZE[0]
 
-    for x in range(IMG_SIZE[0] * IMG_SIZE[1]):
+    for x in range(start, finish):
         fitness += sum(abs(subtract(img_grid[x], ind_grid[x])))
     
     print(fitness)
