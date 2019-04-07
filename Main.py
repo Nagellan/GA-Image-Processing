@@ -4,7 +4,7 @@ from numpy import subtract, array
 
 
 IMG = Image.open("img/smoke-dog.jpg")
-POP_SIZE = 1
+POP_SIZE = 10
 IMG_SIZE = IMG.size
 NUM_ITERATIONS = 50
 
@@ -69,11 +69,24 @@ class Fitness:
         return fitness
 
 
+class Selection:
+    def start(self, population, coef):
+        population.individuals.sort(key=lambda x: x.fitness)
+        num_survived = round(POP_SIZE*coef)
+        if num_survived >= 1:
+            del population.individuals[num_survived:]
+        else:
+            del population.individuals[1:]
+
+
 def start():
     population = Population()
     population.create()
 
     fitness = Fitness()
     fitness.compute(population)
+
+    selection = Selection()
+    selection.start(population, 0.2)
 
 start()
