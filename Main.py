@@ -6,9 +6,9 @@ from math import sin, cos, pi
 
 IMG = Image.open("img/smoke-dog.jpg")
 IMG_SIZE = IMG.size
-POP_SIZE = 10
-SURVIVE_COEF = 0.2
-NUM_ITERATIONS = 50
+POP_SIZE = 20
+SURVIVE_COEF = 0.5
+NUM_ITERATIONS = 100
 
 
 class Population:
@@ -77,7 +77,6 @@ class Individual:
 
         coords = pick_coords()
         color = self.pick_color()
-        self.genes = (4, coords, color)
         self.draw.polygon(coords, fill=color)
 
     def draw_circle(self):
@@ -97,7 +96,6 @@ class Individual:
         
         coords = pick_coords()
         color = self.pick_color()
-        self.genes = (4, coords, color)
         self.draw.ellipse(coords, fill=color)
 
     def pick_color(self):
@@ -172,17 +170,22 @@ def start():
     population = Population()
     population.create()
 
-    fitness = Fitness()
-    fitness.compute(population)
+    for i in range(NUM_ITERATIONS):
+        fitness = Fitness()
+        fitness.compute(population)
 
-    selection = Selection()
-    selection.start(population, SURVIVE_COEF)
+        selection = Selection()
+        selection.start(population, SURVIVE_COEF)
 
-    crossover = Crossover()
-    crossover.start(population)
+        crossover = Crossover()
+        crossover.start(population)
 
-    mutation = Mutation()
-    mutation.start(population)
+        mutation = Mutation()
+        mutation.start(population)
+
+        print("ITERATION " + str(i) + " COMPLETED!")
+
+    population.individuals[0].show()
 
 
 start()
