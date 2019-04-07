@@ -34,10 +34,12 @@ class Individual:
         def pick_coords():
             coords = []
 
-            coords.append(randint(0, self.chromosome.size[0]))
-            coords.append(randint(0, self.chromosome.size[1]))
-            coords.append(randint(0, self.chromosome.size[0]))
-            coords.append(randint(0, self.chromosome.size[1]))
+            x1 = randint(0, round(IMG_SIZE[0]*0.7))
+            y1 = randint(0, round(IMG_SIZE[1]*0.7))
+            coords.append(x1)
+            coords.append(y1)
+            coords.append(randint(x1 + round(IMG_SIZE[0]*0.2), IMG_SIZE[0]))
+            coords.append(randint(y1 + round(IMG_SIZE[1]*0.2), IMG_SIZE[1]))
 
             return coords
 
