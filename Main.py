@@ -6,9 +6,9 @@ from math import sin, cos, pi
 
 IMG = Image.open("img/smoke-dog.jpg")
 IMG_SIZE = IMG.size
-POP_SIZE = 20
-SURVIVE_COEF = 0.5
-NUM_ITERATIONS = 100
+POP_SIZE = 150
+SURVIVE_COEF = 0.2
+NUM_ITERATIONS = 1500
 
 
 class Population:
