@@ -18,10 +18,6 @@ class Population:
             individ.draw_figure()
             self.individuals.append(individ)
 
-    def compute_fitness(self, fitness_func):
-        for individ in self.individuals:
-            individ.fitness = fitness_func(individ, IMG)
-
 
 class Individual:
     fitness = -1
@@ -55,23 +51,29 @@ class Individual:
         draw.rectangle(coords, fill=color)
 
 
-def fitness_function(individ, img):
-    fitness = 0
-    img_grid = array(img)
-    fig_coords = individ.genes[1]
-    fig_color = individ.genes[2]
+class Fitness:
+    def compute(self, population):
+        for individ in population.individuals:
+            individ.fitness = self.fitness_function(individ, IMG)
+    
+    def fitness_function(self, individ, img):
+        fitness = 0
+        img_grid = array(img)
+        fig_coords = individ.genes[1]
+        fig_color = individ.genes[2]
 
-    for x in range(fig_coords[0], fig_coords[2]):
-        for y in range(fig_coords[1], fig_coords[3]):
-            fitness += sum(abs(subtract(img_grid[y, x], fig_color)))
+        for x in range(fig_coords[0], fig_coords[2]):
+            for y in range(fig_coords[1], fig_coords[3]):
+                fitness += sum(abs(subtract(img_grid[y, x], fig_color)))
 
-    return fitness
+        return fitness
 
 
 def start():
     population = Population()
     population.create()
 
-    population.compute_fitness(fitness_function)
+    fitness = Fitness()
+    fitness.compute(population)
 
 start()
