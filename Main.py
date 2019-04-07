@@ -1,13 +1,13 @@
 from PIL import Image, ImageDraw
 from random import randint, getrandbits
 from numpy import subtract, array
-import copy
+from math import sin, cos, pi
 
 
 IMG = Image.open("img/smoke-dog.jpg")
 IMG_SIZE = IMG.size
 POP_SIZE = 10
-SURVIVE_COEF = 0.3
+SURVIVE_COEF = 0.2
 NUM_ITERATIONS = 50
 
 
@@ -18,7 +18,7 @@ class Population:
     def create(self):
         for i in range(POP_SIZE):
             individ = Individual()
-            individ.draw_figure()
+            individ.draw_rectangle()
             self.individuals.append(individ)
 
 
@@ -28,35 +28,86 @@ class Individual:
     def __init__(self):
         color = "black" if bool(getrandbits(1)) else "white"
         self.chromosome = Image.new('RGB', IMG_SIZE, color = color)
+        self.draw = ImageDraw.Draw(self.chromosome)
 
-    def draw_figure(self):
+    def draw_rectangle(self):
         def pick_coords():
-            coords = []
-
             x1 = randint(0, round(IMG_SIZE[0]*0.7))
             y1 = randint(0, round(IMG_SIZE[1]*0.7))
-            coords.append(x1)
-            coords.append(y1)
-            coords.append(randint(x1 + round(IMG_SIZE[0]*0.2), IMG_SIZE[0]))
-            coords.append(randint(y1 + round(IMG_SIZE[1]*0.2), IMG_SIZE[1]))
+
+            coords = [
+                x1,
+                y1,
+                randint(x1 + round(IMG_SIZE[0]*0.2), IMG_SIZE[0]),
+                randint(y1 + round(IMG_SIZE[1]*0.2), IMG_SIZE[1])
+            ]
+
+            return coords
+        
+        coords = pick_coords()
+        color = self.pick_color()
+        self.genes = (4, coords, color)
+        self.draw.rectangle(coords, fill=color)
+
+    def draw_triangle(self):
+        def rotate(x, y, origin, angle):
+            rads = (-angle/360)*pi
+            x0, y0 = origin[0], origin[1]
+            x1 = round((x-x0)*cos(rads) - (y-y0)*sin(rads) + x0)
+            y1 = round((x-x0)*sin(rads) + (y-y0)*cos(rads) + y0)
+
+            return x1, y1
+
+        def pick_coords():
+            edge_len = randint(IMG_SIZE[0]//25, IMG_SIZE[0]//2)
+            x1 = randint(edge_len//2, IMG_SIZE[0] - edge_len)
+            y1 = randint(edge_len//2, IMG_SIZE[1] - edge_len)
+            height = round(3**(1/2)*(edge_len//2))
+            origin = (x1 + edge_len//2, y1 + height//2)
+
+            angle = randint(0, 360)
+
+            coords = [
+                rotate(x1, y1, origin, angle),
+                rotate(x1 + edge_len, y1, origin, angle),
+                rotate(x1 + edge_len//2, y1 + height, origin, angle)
+            ]
 
             return coords
 
-        def pick_color():
-            return (randint(0, 255), randint(0, 255), randint(0, 255))
-
-        draw = ImageDraw.Draw(self.chromosome)
         coords = pick_coords()
-        color = pick_color()
+        color = self.pick_color()
+        self.genes = (4, coords, color)
+        self.draw.polygon(coords, fill=color)
 
-        self.genes = ("rectangle", coords, color)
+    def draw_circle(self):
+        def pick_coords():
+            edge_len = randint(IMG_SIZE[0]//30, IMG_SIZE[0]//3)
+            x1 = randint(0, IMG_SIZE[0] - edge_len)
+            y1 = randint(0, IMG_SIZE[1] - edge_len)
 
-        draw.rectangle(coords, fill=color)
+            coords = [
+                x1,
+                y1,
+                x1 + edge_len,
+                y1 + edge_len
+            ]
+
+            return coords
+        
+        coords = pick_coords()
+        color = self.pick_color()
+        self.genes = (4, coords, color)
+        self.draw.ellipse(coords, fill=color)
+
+    def pick_color(self):
+        return (randint(0, 255), randint(0, 255), randint(0, 255))
 
     def clone(self):
         new_instance = Individual()
         new_instance.fitness = self.fitness
         new_instance.chromosome = self.chromosome.copy()
+        new_instance.draw = ImageDraw.Draw(new_instance.chromosome)
         return new_instance
 
 
@@ -88,7 +139,6 @@ class Selection:
         population.num_survived = num_survived
         
 
-
 class Crossover:
     def start(self, population):
         individuals = population.individuals
@@ -105,8 +155,17 @@ class Crossover:
         new_pop_size = len(individuals)
         for i in range(new_pop_size, POP_SIZE):
             new_ind = individuals[randint(0, new_pop_size - 1)].clone()
-            # new_ind.chromosome = new_ind.chromosome.rotate(90*randint(1, 4), expand=False)
             individuals.append(new_ind)
+
+
+class Mutation:
+    def start(self, population):
+        for individ in population.individuals:
+            individ.draw_rectangle()    # draw rectangle
+            if randint(0, 100) < 40:    # draw trangle with 20% probability
+                individ.draw_triangle()
+            if randint(0, 100) < 15:    # draw circle with 10% probability
+                individ.draw_circle()
 
 
 def start():
@@ -121,6 +180,9 @@ def start():
 
     crossover = Crossover()
     crossover.start(population)
+
+    mutation = Mutation()
+    mutation.start(population)
 
 
 start()
