@@ -1,16 +1,19 @@
 from PIL import Image, ImageDraw
 from random import randint, getrandbits
 from numpy import subtract, array
+import copy
 
 
 IMG = Image.open("img/smoke-dog.jpg")
-POP_SIZE = 10
 IMG_SIZE = IMG.size
+POP_SIZE = 10
+SURVIVE_COEF = 0.3
 NUM_ITERATIONS = 50
 
 
 class Population:
     individuals = []
+    num_survived = POP_SIZE
 
     def create(self):
         for i in range(POP_SIZE):
@@ -50,6 +53,12 @@ class Individual:
 
         draw.rectangle(coords, fill=color)
 
+    def clone(self):
+        new_instance = Individual()
+        new_instance.fitness = self.fitness
+        new_instance.chromosome = self.chromosome.copy()
+        return new_instance
+
 
 class Fitness:
     def compute(self, population):
@@ -73,10 +82,31 @@ class Selection:
     def start(self, population, coef):
         population.individuals.sort(key=lambda x: x.fitness)
         num_survived = round(POP_SIZE*coef)
-        if num_survived >= 1:
-            del population.individuals[num_survived:]
-        else:
-            del population.individuals[1:]
+        if num_survived == 0:
+            num_survived = 1
+        del population.individuals[num_survived:]
+        population.num_survived = num_survived
+        
+
+
+class Crossover:
+    def start(self, population):
+        individuals = population.individuals
+
+        for i in range(population.num_survived):
+            for j in range(i + 1, population.num_survived):
+                ind_1 = individuals[i]
+                ind_2 = individuals[j]
+                new_data = ind_2.chromosome.crop(ind_2.genes[1])
+                new_ind = ind_1.clone()
+                new_ind.chromosome.paste(new_data, (ind_2.genes[1]))
+                individuals.append(new_ind)
+
+        new_pop_size = len(individuals)
+        for i in range(new_pop_size, POP_SIZE):
+            new_ind = individuals[randint(0, new_pop_size - 1)].clone()
+            # new_ind.chromosome = new_ind.chromosome.rotate(90*randint(1, 4), expand=False)
+            individuals.append(new_ind)
 
 
 def start():
@@ -87,6 +117,10 @@ def start():
     fitness.compute(population)
 
     selection = Selection()
-    selection.start(population, 0.2)
+    selection.start(population, SURVIVE_COEF)
+
+    crossover = Crossover()
+    crossover.start(population)
+
 
 start()
