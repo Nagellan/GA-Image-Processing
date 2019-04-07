@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw
 from random import randint, getrandbits
-from numpy import subtract
+from numpy import subtract, array
 
 
 IMG = Image.open("img/smoke-dog.jpg")
@@ -55,16 +55,13 @@ class Individual:
 
 def fitness_function(individ, img):
     fitness = 0
-    ind_grid = individ.chromosome.getdata()
-    img_grid = img.getdata()
+    img_grid = array(img)
     fig_coords = individ.genes[1]
-    start = min(fig_coords[1], fig_coords[3])*IMG_SIZE[0]
-    finish = max(fig_coords[1], fig_coords[3])*IMG_SIZE[0]
+    fig_color = individ.genes[2]
 
-    for x in range(start, finish):
-        fitness += sum(abs(subtract(img_grid[x], ind_grid[x])))
-    
-    print(fitness)
+    for x in range(fig_coords[0], fig_coords[2]):
+        for y in range(fig_coords[1], fig_coords[3]):
+            fitness += sum(abs(subtract(img_grid[y, x], fig_color)))
 
     return fitness
 
