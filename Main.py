@@ -1,15 +1,15 @@
 from PIL import Image, ImageDraw
 from random import randint, getrandbits
-from numpy import subtract, array
+from numpy import subtract, array, mean
 from math import sin, cos, pi
 import itertools
 
 
 IMG = Image.open("img/smoke-dog.jpg")
 IMG_SIZE = IMG.size
-POP_SIZE = 800
-SURVIVE_COEF = 0.5
-NUM_ITERATIONS = 3
+POP_SIZE = 5000
+SURVIVE_COEF = 0.2
+NUM_ITERATIONS = 2
 
 
 class Population:
@@ -123,7 +123,7 @@ class Fitness:
 
         for x in range(fig_coords[0], fig_coords[2]):
             for y in range(fig_coords[1], fig_coords[3]):
-                fitness += sum(abs(subtract(img_grid[y, x], fig_color)))
+                fitness += int(round(mean(abs(subtract(img_grid[y, x], fig_color)))))
 
         return fitness
 
