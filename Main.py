@@ -2,13 +2,14 @@ from PIL import Image, ImageDraw
 from random import randint, getrandbits
 from numpy import subtract, array
 from math import sin, cos, pi
+import itertools
 
 
 IMG = Image.open("img/smoke-dog.jpg")
 IMG_SIZE = IMG.size
-POP_SIZE = 150
-SURVIVE_COEF = 0.2
-NUM_ITERATIONS = 1500
+POP_SIZE = 800
+SURVIVE_COEF = 0.5
+NUM_ITERATIONS = 3
 
 
 class Population:
@@ -139,21 +140,27 @@ class Selection:
 
 class Crossover:
     def start(self, population):
+        def get_comb(n, m):
+            return list(itertools.combinations(range(m), n))
+
         individuals = population.individuals
-
-        for i in range(population.num_survived):
-            for j in range(i + 1, population.num_survived):
-                ind_1 = individuals[i]
-                ind_2 = individuals[j]
-                new_data = ind_2.chromosome.crop(ind_2.genes[1])
-                new_ind = ind_1.clone()
-                new_ind.chromosome.paste(new_data, (ind_2.genes[1]))
-                individuals.append(new_ind)
-
-        new_pop_size = len(individuals)
-        for i in range(new_pop_size, POP_SIZE):
-            new_ind = individuals[randint(0, new_pop_size - 1)].clone()
+        num_surv = population.num_survived
+        num_needed = POP_SIZE - num_surv
+        comb_list = get_comb(2, num_surv)[:num_needed]  # get all possible combinations of individuals crossover
+        
+        for (i, j) in comb_list:
+            ind_1 = individuals[i]
+            ind_2 = individuals[j]
+            new_data = ind_2.chromosome.crop(ind_2.genes[1])
+            new_ind = ind_1.clone()
+            new_ind.chromosome.paste(new_data, (ind_2.genes[1]))
             individuals.append(new_ind)
+
+        if (len(comb_list) < num_needed):   # if there're not enough offsrping, randomly clone the existing ones
+            new_pop_size = len(individuals)
+            for i in range(new_pop_size, POP_SIZE):
+                new_ind = individuals[randint(0, new_pop_size - 1)].clone()
+                individuals.append(new_ind)
 
 
 class Mutation:
@@ -184,8 +191,11 @@ def start():
         mutation.start(population)
 
         print("ITERATION " + str(i) + " COMPLETED!")
+    
+    fitness.compute(population)
+    selection.start(population, SURVIVE_COEF)
 
-    population.individuals[0].show()
+    population.individuals[0].chromosome.save("img/art.jpg")
 
 
 start()
