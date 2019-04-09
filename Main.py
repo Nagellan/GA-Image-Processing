@@ -5,7 +5,7 @@ from math import sin, cos, pi
 import itertools
 
 
-IMG = Image.open("img/smoke-dog.jpg")
+IMG = Image.open("img/monkey.jpg")
 IMG_SIZE = IMG.size
 POP_SIZE = 5000
 SURVIVE_COEF = 0.2
@@ -195,7 +195,7 @@ def start():
     fitness.compute(population)
     selection.start(population, SURVIVE_COEF)
 
-    population.individuals[0].chromosome.save("img/art.jpg")
+    population.individuals[0].chromosome.save("img/arts/art20.jpg")
 
 
 start()

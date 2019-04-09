@@ -2,7 +2,7 @@
 
 ## Task
 
-The full task can be read [here](https://drive.google.com/file/d/14jDA74WCqQtqo7bOKhc7F36Yj8gH7Ha7/view?usp=sharing).
+The full task can be read [here](Assignment2.pdf).
 
 Given several test input images of 512x512 pixels, using any programming language produce via any **evolutionary algorithm** another 512x512 image from a single test one by using your _computational artist_ (algorithm).
 
@@ -16,24 +16,49 @@ The outcome must be a **piece of art** and will be evaluated in the art contest 
 - [x] Read about image recognition and processing
 - [x] Choose the technology stack
 - [x] Create a GitHub Repository
-- [ ] Implement Genetic algorithm
-- [ ] Include image segmentation and processing
-- [ ] Integrate the project with Flask `Likely`
-- [ ] Add user interface for interacting with the program `Likely`
-- [ ] Deploy the whole project on server `Likely`
+- [x] Implement Genetic algorithm
+- [x] Include image segmentation and processing
+- [ ] Integrate the project with Flask `Postponed`
+- [ ] Add user interface for interacting with the program `Postponed`
+- [ ] Deploy the whole project on server `Postponed`
 
 ## Architecture stack
 
 1. **Python** for the backend
     1. **Pillow** framework for image processing
-    2. **Scikit-image** module for image segmentation `Likely`
-2. **Flask** for transformation the project into the web-application `Likely`
-3. **HTML + CSS + JS** for the frontend
-4. **Heroku** as the place for project deployment
+    2. **Scikit-image** module for image segmentation `Rejected`
+2. **Flask** for transformation the project into the web-application `Postponed`
+3. **HTML + CSS + JS** for the frontend `Postponed`
+4. **Heroku** as the place for project deployment `Postponed`
 
 ## Implementation
 
-_Will be added after the project is done._
+The full report is available [here](Report.pdf).
+
+### Initial population
+On this stage, the necessary amount (specified initially) of individuals is generated.
+The individual’s chromosome is the picture with the black or white background (chosen randomly) and the rectangle of some random color on it.
+The rectangle’s coordinates and color are saved as the individual’s genes. Rectangles for my algorithm are the same as the brush strokes on the paintings.
+
+### Fitness function
+On this stage, comparisons with the origin image happen.
+From the individual, I take genes with the information about coordinates of the last added rectangle and its color. Then I compare pixels on the origin picture lying on the appropriate area of that rectangle (lying on individual’s chromosome) with its color. I find the difference between each pixel on that area and rectangle color, and them sum it to the individual’s fitness score.
+
+### Selection
+On this stage, the whole population is sorted increasingly by the fitness score and then reduced by the survival coefficient specified initially.
+
+### Crossover
+On this stage, the population is restored by crossing the best survived individuals.
+Pairwisely, all the combinations of survived individuals are crossed in following way: the area of last added rectangle is copied from one individual to another (from worse individual to the better one). If the amount of combinations is not enough to restore the population to its initial amount, it’s finally complemented by random creatures already existing.
+
+### Mutation
+On this stage, the new figures are added with some probability to each individual.
+The rectangle is added with 100% probability.
+The triangle is added with 40% probability.
+The circle is added with 15% probability.
+
+All these stages (except the first one) are being repeated until the specified number of iterations is done.
+
 
 ## Useful links
 
